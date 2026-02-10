@@ -1,11 +1,9 @@
-const { PrismaClient } = require('@prisma/client')
+const { Sequelize } = require('sequelize')
+require('dotenv').config()
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: process.env.DATABASE_URL, // <-- ici tu passes la connexion
-    },
-  },
+const sequelize = new Sequelize(process.env.DATABASE_URL, {
+  dialect: 'postgres',
+  logging: false,
 })
 
-module.exports = prisma
+module.exports = sequelize
