@@ -1,5 +1,27 @@
 const db = require('../db')
 
+
+exports.getUserByPhone = async (req, res) => {
+  const { phoneNumber } = req.params
+
+  const { rows } = await db.query(
+    'SELECT * FROM users WHERE phone_number = $1 LIMIT 1',
+    [phoneNumber]
+  )
+
+  if (rows.length === 0) {
+    return res.json({
+      exist: false,
+      user: null,
+    })
+  }
+
+  return res.json({
+    exist: true,
+    user: rows[0],
+  })
+}
+
 exports.getUsers = async (req, res) => {
   const { rows } = await db.query('SELECT * FROM users ORDER BY id')
   res.json(rows)
