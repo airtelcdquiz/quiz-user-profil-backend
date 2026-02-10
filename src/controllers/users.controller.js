@@ -1,74 +1,35 @@
-const db = require('../db')
-
+const prisma = require('../db')
 
 exports.getUserByPhone = async (req, res) => {
   const { phoneNumber } = req.params
 
-  const { rows } = await db.query(
-    'SELECT * FROM users WHERE phone_number = $1 LIMIT 1',
-    [phoneNumber]
-  )
-
-  if (rows.length === 0) {
-    return res.json({
-      exist: false,
-      user: null,
-    })
-  }
+  const user = await prisma.user.findUnique({
+    where: { phone_number: phoneNumber }
+  })
 
   return res.json({
-    exist: true,
-    user: rows[0],
+    exist: Boolean(user),
+    user: user || null
   })
 }
 
-exports.getUsers = async (req, res) => {
-  const { rows } = await db.query('SELECT * FROM users ORDER BY id')
-  res.json(rows)
-}
 
 exports.createUser = async (req, res) => {
   const { name, phone_number, email } = req.body
 
-  if (!phone_number) {
-    return res.status(400).json({
-      error: 'phone_number is required',
-    })
+  const existingUser = await prisma.user.findUnique({
+    where: { phone_number }
+  })
+
+  if (existingUser) {
+    return res.status(200).json({ exist: true, user: existingUser })
   }
 
-  try {
-    // 1️⃣ Vérifier si le user existe déjà
-    const existingUser = await db.query(
-      'SELECT * FROM users WHERE phone_number = $1 LIMIT 1',
-      [phone_number]
-    )
+  const user = await prisma.user.create({
+    data: { name, phone_number, email }
+  })
 
-    if (existingUser.rows.length > 0) {
-      return res.status(200).json({
-        exist: true,
-        user: existingUser.rows[0],
-      })
-    }
-
-    // 2️⃣ Créer le user
-    const { rows } = await db.query(
-      `INSERT INTO users (name, phone_number, email)
-       VALUES ($1, $2, $3)
-       RETURNING *`,
-      [name || null, phone_number, email || null]
-    )
-
-    return res.status(201).json({
-      exist: false,
-      user: rows[0],
-    })
-  } catch (err) {
-    console.error(err)
-
-    return res.status(500).json({
-      error: 'internal_server_error',
-    })
-  }
+  return res.status(201).json({ exist: false, user })
 }
 
 
@@ -76,41 +37,18 @@ exports.updateUserByPhone = async (req, res) => {
   const { phoneNumber } = req.params
   const { name, email } = req.body
 
-  try {
-    // 1️⃣ Vérifier si le user existe
-    const existingUser = await db.query(
-      'SELECT * FROM users WHERE phone_number = $1 LIMIT 1',
-      [phoneNumber]
-    )
+  const user = await prisma.user.findUnique({
+    where: { phone_number: phoneNumber }
+  })
 
-    if (existingUser.rows.length === 0) {
-      return res.json({
-        exist: false,
-        user: null,
-      })
-    }
-
-    // 2️⃣ Mise à jour
-    const { rows } = await db.query(
-      `
-      UPDATE users
-      SET
-        name = COALESCE($1, name),
-        email = COALESCE($2, email)
-      WHERE phone_number = $3
-      RETURNING *
-      `,
-      [name, email, phoneNumber]
-    )
-
-    return res.json({
-      exist: true,
-      user: rows[0],
-    })
-  } catch (err) {
-    console.error(err)
-    return res.status(500).json({
-      error: 'internal_server_error',
-    })
+  if (!user) {
+    return res.json({ exist: false, user: null })
   }
+
+  const updatedUser = await prisma.user.update({
+    where: { phone_number: phoneNumber },
+    data: { name, email }
+  })
+
+  return res.json({ exist: true, user: updatedUser })
 }
