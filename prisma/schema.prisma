@@ -7,7 +7,7 @@
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
-  url      = "postgresql://ussds:ussd@ussd-postgres:5432/ussd?schema=public"
+  url      = env("DATABASE_URL")
 }
 
 datasource db {
