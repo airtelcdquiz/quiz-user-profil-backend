@@ -70,3 +70,47 @@ exports.createUser = async (req, res) => {
     })
   }
 }
+
+
+exports.updateUserByPhone = async (req, res) => {
+  const { phoneNumber } = req.params
+  const { name, email } = req.body
+
+  try {
+    // 1️⃣ Vérifier si le user existe
+    const existingUser = await db.query(
+      'SELECT * FROM users WHERE phone_number = $1 LIMIT 1',
+      [phoneNumber]
+    )
+
+    if (existingUser.rows.length === 0) {
+      return res.json({
+        exist: false,
+        user: null,
+      })
+    }
+
+    // 2️⃣ Mise à jour
+    const { rows } = await db.query(
+      `
+      UPDATE users
+      SET
+        name = COALESCE($1, name),
+        email = COALESCE($2, email)
+      WHERE phone_number = $3
+      RETURNING *
+      `,
+      [name, email, phoneNumber]
+    )
+
+    return res.json({
+      exist: true,
+      user: rows[0],
+    })
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({
+      error: 'internal_server_error',
+    })
+  }
+}
