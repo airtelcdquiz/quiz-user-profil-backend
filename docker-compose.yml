@@ -9,6 +9,8 @@ services:
       - "3000" 
     networks:
       - dokploy-network
+    env_file:
+      - .env.example
 
 networks:
   dokploy-network:
