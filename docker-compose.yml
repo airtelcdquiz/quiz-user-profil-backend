@@ -1,0 +1,15 @@
+version: "3.9"
+
+services:
+  quiz-user-service:
+    container_name: quiz-user-service
+    build: .
+    restart: unless-stopped 
+    expose:
+      - "3000" 
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true
