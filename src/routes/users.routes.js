@@ -5,7 +5,7 @@ const User = require('../models/User')
 // GET /users/:phoneNumber
 router.get('/:phoneNumber', async (req, res) => {
   const user = await User.findOne({ where: { phone_number: req.params.phoneNumber } })
-  user ? res.json({ ... user, exist: true }) : 
+  user ? res.json({ ...user.toJSON(), exist: true }) : 
   res.json({ exist: false})
 })
 
@@ -16,7 +16,7 @@ router.post('/', async (req, res) => {
     where: { phone_number },
     defaults: { name, email }
   })
-  res.status(created ? 201 : 200).json({ ...user, exist: !created })
+  res.status(created ? 201 : 200).json({ ...user.toJSON(), exist: !created })
 })
 
 // PUT /users/:phoneNumber
@@ -26,7 +26,7 @@ router.put('/:phoneNumber', async (req, res) => {
   if (!user) return res.json({ exist: false })
 
   await user.update({ name, email })
-  res.json({ exist: true, user })
+  res.json({ ...user.toJSON(), exist: true })
 })
 
 module.exports = router
