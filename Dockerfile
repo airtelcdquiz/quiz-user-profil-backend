@@ -3,13 +3,12 @@ FROM node:20-alpine
 WORKDIR /app
 
 COPY package*.json ./
+COPY prisma ./prisma
 
-RUN npm install --production
+RUN npm install
 
 COPY src ./src
 
 EXPOSE 3000
 
-RUN npx prisma migrate dev --name init
-
-CMD ["node", "src/server.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node src/server.js"]
