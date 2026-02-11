@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const User = require('../models/User')
+const { enqueueSMS } = require('../lib/smsQueue')
 
 // GET /users/:phoneNumber
 router.get('/:phoneNumber', async (req, res) => {
@@ -30,7 +31,7 @@ router.post('/', async (req, res) => {
         school_option
       }
     })
-
+    enqueueSMS(mobileNumber, 'Bienvenue sur notre plateforme de quiz !' , {})
     res.status(created ? 201 : 200).json({
       ...user.toJSON(),
       exist: !created
@@ -73,7 +74,7 @@ router.put('/:phoneNumber', async (req, res) => {
     if (school_option !== undefined) updates.school_option = school_option
 
     await user.update(updates)
-
+    enqueueSMS(mobileNumber, 'Votre profil a été mis à jour avec succès.', {})
     res.json({
       ...user.toJSON(),
       exist: true
