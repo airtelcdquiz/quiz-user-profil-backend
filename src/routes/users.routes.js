@@ -12,16 +12,16 @@ router.get('/:phoneNumber', async (req, res) => {
 // POST /users
 router.post('/', async (req, res) => {
   try {
-    const { name, phone_number, school_code, school_level = 1, school_class = 1, school_option = 1} = req.body
+    const { name, mobileNumber, school_code, school_level = 1, school_class = 1, school_option = 1} = req.body
 
-    if (!phone_number || !school_code) {
+    if (!mobileNumber || !school_code) {
       return res.status(400).json({
-        error: 'phone_number and school_code are required'
+        error: 'mobileNumber and school_code are required'
       })
     }
 
     const [user, created] = await User.findOrCreate({
-      where: { phone_number },
+      where: { mobileNumber },
       defaults: {
         name, 
         school_code,
@@ -57,7 +57,7 @@ router.put('/:phoneNumber', async (req, res) => {
     } = req.body
 
     const user = await User.findOne({
-      where: { phone_number: req.params.phoneNumber }
+      where: { phone_number: req.params.mobileNumber }
     })
 
     if (!user) {
@@ -66,8 +66,7 @@ router.put('/:phoneNumber', async (req, res) => {
 
     const updates = {}
 
-    if (name !== undefined) updates.name = name
-    if (email !== undefined) updates.email = email
+    if (name !== undefined) updates.name = name 
     if (school_code !== undefined) updates.school_code = school_code
     if (school_level !== undefined) updates.school_level = school_level
     if (school_class !== undefined) updates.school_class = school_class
