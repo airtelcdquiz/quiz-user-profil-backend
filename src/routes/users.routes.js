@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
     }
 
     const [user, created] = await User.findOrCreate({
-      where: { mobileNumber },
+      where: { phone_number: mobileNumber },
       defaults: {
         name, 
         school_code,
