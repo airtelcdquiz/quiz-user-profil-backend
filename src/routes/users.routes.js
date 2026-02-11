@@ -11,22 +11,80 @@ router.get('/:phoneNumber', async (req, res) => {
 
 // POST /users
 router.post('/', async (req, res) => {
-  const { name, phone_number, email } = req.body
-  const [user, created] = await User.findOrCreate({
-    where: { phone_number },
-    defaults: { name, email }
-  })
-  res.status(created ? 201 : 200).json({ ...user.toJSON(), exist: !created })
+  try {
+    const { name, phone_number, school_code, school_level = 1, school_class = 1, school_option = 1} = req.body
+
+    if (!phone_number || !school_code) {
+      return res.status(400).json({
+        error: 'phone_number and school_code are required'
+      })
+    }
+
+    const [user, created] = await User.findOrCreate({
+      where: { phone_number },
+      defaults: {
+        name, 
+        school_code,
+        school_level,
+        school_class,
+        school_option
+      }
+    })
+
+    res.status(created ? 201 : 200).json({
+      ...user.toJSON(),
+      exist: !created
+    })
+
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
 })
+
 
 // PUT /users/:phoneNumber
+// PUT /users/:phoneNumber
 router.put('/:phoneNumber', async (req, res) => {
-  const { name, email } = req.body
-  const user = await User.findOne({ where: { phone_number: req.params.phoneNumber } })
-  if (!user) return res.json({ exist: false })
+  try {
+    const {
+      name,
+      email,
+      school_code,
+      school_level,
+      school_class,
+      school_option
+    } = req.body
 
-  await user.update({ name, email })
-  res.json({ ...user.toJSON(), exist: true })
+    const user = await User.findOne({
+      where: { phone_number: req.params.phoneNumber }
+    })
+
+    if (!user) {
+      return res.status(404).json({ exist: false })
+    }
+
+    const updates = {}
+
+    if (name !== undefined) updates.name = name
+    if (email !== undefined) updates.email = email
+    if (school_code !== undefined) updates.school_code = school_code
+    if (school_level !== undefined) updates.school_level = school_level
+    if (school_class !== undefined) updates.school_class = school_class
+    if (school_option !== undefined) updates.school_option = school_option
+
+    await user.update(updates)
+
+    res.json({
+      ...user.toJSON(),
+      exist: true
+    })
+
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
 })
+
 
 module.exports = router
