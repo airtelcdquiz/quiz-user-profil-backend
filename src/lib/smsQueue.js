@@ -1,7 +1,7 @@
 
 // src/utils/smsQueue.js
 const Queue = require('bull');
-const REDIS_URL = 'redis://ussd-redis:6379';
+const REDIS_URL = 'redis://41.243.25.144:6379';
 
 // Création de la queue
 const smsQueue = new Queue('sms_queue', REDIS_URL);

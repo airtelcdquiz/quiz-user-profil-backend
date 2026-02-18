@@ -21,6 +21,14 @@ router.post('/', async (req, res) => {
       })
     }
 
+    const school = await School.findByPk(school_code)
+    if (!school) {
+      return res.status(400).json({
+        error: 'Invalid school_code',
+        errorCode: 'INVALID_SCHOOL_CODE'
+      })
+    }
+
     const [user, created] = await User.findOrCreate({
       where: { phone_number: mobileNumber },
       defaults: {
