@@ -8,3 +8,5 @@ router.get('/:code', async (req, res) => {
   school ? res.json({ ...school.toJSON(), exist: true }) : 
   res.json({ exist: false})
 })
+
+module.exports = router
