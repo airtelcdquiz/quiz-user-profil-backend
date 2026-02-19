@@ -142,6 +142,90 @@ router.post('/:mobileNumber/lock-daily-question', async (req, res) => {
   }
 })
 
+
+// POST /users/:mobileNumber/submit-answer
+router.post('/:mobileNumber/submit-answer', async (req, res) => {
+  try {
+    const { choice } = req.body
+
+    if (!choice || choice < 1 || choice > 4) {
+      return res.status(400).json({
+        error: 'Choice must be between 1 and 4'
+      })
+    }
+
+    const user = await User.findOne({
+      where: { phone_number: req.params.mobileNumber }
+    })
+
+    if (!user) {
+      return res.status(404).json({ exist: false })
+    }
+
+    // 📅 Début et fin de la journée
+    const startOfDay = new Date()
+    startOfDay.setHours(0, 0, 0, 0)
+
+    const endOfDay = new Date()
+    endOfDay.setHours(23, 59, 59, 999)
+
+    // 🔎 Récupérer la question assignée aujourd’hui
+    const questionResponse = await QuestionResponse.findOne({
+      where: {
+        user_id: user.phone_number, // ⚠️ idéalement user.id
+        created_date: {
+          [Op.between]: [startOfDay, endOfDay]
+        }
+      }
+    })
+
+    if (!questionResponse) {
+      return res.status(404).json({
+        exist: true,
+        status: 'no_question_today'
+      })
+    }
+
+    // 🚫 Déjà répondu
+    if (questionResponse.choice) {
+      return res.json({
+        exist: true,
+        status: 'already_answered',
+        is_correct: questionResponse.is_correct
+      })
+    }
+
+    // 🔎 Charger la question pour vérifier la bonne réponse
+    const question = await Question.findByPk(questionResponse.question_id)
+
+    if (!question) {
+      return res.status(500).json({
+        error: 'Question not found'
+      })
+    }
+
+    const isCorrect = question.response === choice
+
+    // 💾 Mise à jour
+    questionResponse.choice = choice
+    questionResponse.is_correct = isCorrect
+    questionResponse.updated_date = new Date()
+
+    await questionResponse.save()
+
+    return res.json({
+      exist: true,
+      status: 'answered',
+      is_correct: isCorrect,
+      correct_answer: question.response
+    })
+
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // POST /users
 router.post('/', async (req, res) => {
   try {
