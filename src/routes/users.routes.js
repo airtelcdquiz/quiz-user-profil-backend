@@ -37,6 +37,7 @@ router.get('/:phoneNumber', async (req, res) => {
 
     if (!questionOfDay) {
       return res.json({
+        ...user.toJSON(),
         exist: true,
         status: 'no_question_today'
       })
@@ -52,6 +53,7 @@ router.get('/:phoneNumber', async (req, res) => {
 
     if (response) {
       return res.json({
+        ...user.toJSON(),
         exist: true,
         status: 'already_answered',
         is_correct: response.is_correct
@@ -60,6 +62,7 @@ router.get('/:phoneNumber', async (req, res) => {
 
     // 📩 Question non encore répondue
     return res.json({
+      ...user.toJSON(),
       exist: true,
       status: 'question_pending',
       question: {
