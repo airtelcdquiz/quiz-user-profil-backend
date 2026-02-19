@@ -82,6 +82,66 @@ router.get('/:phoneNumber', async (req, res) => {
   }
 })
 
+
+// POST /users/:mobileNumber/lock-daily-question
+router.post('/:mobileNumber/lock-daily-question', async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { phone_number: req.params.mobileNumber }
+    })
+
+    if (!user) {
+      return res.status(404).json({ exist: false })
+    }
+
+    // 📅 Début et fin de la journée
+    const startOfDay = new Date()
+    startOfDay.setHours(0, 0, 0, 0)
+
+    const endOfDay = new Date()
+    endOfDay.setHours(23, 59, 59, 999)
+
+    // 🔎 Récupérer la question du jour assignée
+    const questionOfDay = await QuestionResponse.findOne({
+      where: {
+        user_id: user.phone_number,  // ⚠️ assure-toi que user_id = phone_number
+        created_date: {
+          [Op.between]: [startOfDay, endOfDay]
+        }
+      }
+    })
+
+    if (!questionOfDay) {
+      return res.status(404).json({
+        exist: true,
+        status: 'no_question_today'
+      })
+    }
+
+    // 🔒 Si déjà lock
+    if (questionOfDay.already_read) {
+      return res.json({
+        exist: true,
+        status: 'already_locked'
+      })
+    }
+
+    // 🔄 Mise à jour
+    questionOfDay.already_read = true
+    await questionOfDay.save()
+
+    return res.json({
+      exist: true,
+      status: 'locked',
+      question_id: questionOfDay.question_id
+    })
+
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // POST /users
 router.post('/', async (req, res) => {
   try {
