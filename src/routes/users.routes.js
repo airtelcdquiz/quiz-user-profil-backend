@@ -3,12 +3,77 @@ const router = express.Router()
 const User = require('../models/User')
 const School = require('../models/School')
 const { enqueueSMS } = require('../lib/smsQueue')
+const Question = require('../models/Question')
+const QuestionResponse = require('../models/QuestionResponse')
 
 // GET /users/:phoneNumber
 router.get('/:phoneNumber', async (req, res) => {
-  const user = await User.findOne({ where: { phone_number: req.params.phoneNumber } })
-  user ? res.json({ ...user.toJSON(), exist: true }) : 
-  res.json({ exist: false})
+  try {
+    const user = await User.findOne({
+      where: { phone_number: req.params.phoneNumber }
+    })
+
+    if (!user) {
+      return res.json({ exist: false })
+    }
+
+    // 📅 Début et fin de la journée
+    const startOfDay = new Date()
+    startOfDay.setHours(0, 0, 0, 0)
+
+    const endOfDay = new Date()
+    endOfDay.setHours(23, 59, 59, 999)
+
+    // 🔎 Question du jour
+    const questionOfDay = await Question.findOne({
+      where: {
+        created_at: {
+          [Op.between]: [startOfDay, endOfDay]
+        }
+      }
+    })
+
+    if (!questionOfDay) {
+      return res.json({
+        exist: true,
+        status: 'no_question_today'
+      })
+    }
+
+    // 🔎 Vérifier si l'utilisateur a répondu
+    const response = await QuestionResponse.findOne({
+      where: {
+        user_id: user.id,
+        question_id: questionOfDay.id
+      }
+    })
+
+    if (response) {
+      return res.json({
+        exist: true,
+        status: 'already_answered',
+        is_correct: response.is_correct
+      })
+    }
+
+    // 📩 Question non encore répondue
+    return res.json({
+      exist: true,
+      status: 'question_pending',
+      question: {
+        id: questionOfDay.id,
+        question: questionOfDay.question,
+        option_1: questionOfDay.option_1,
+        option_2: questionOfDay.option_2,
+        option_3: questionOfDay.option_3,
+        option_4: questionOfDay.option_4
+      }
+    })
+
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
 })
 
 // POST /users
@@ -67,7 +132,7 @@ router.put('/:phoneNumber', async (req, res) => {
     } = req.body
 
     const user = await User.findOne({
-      where: { phone_number: req.params.mobileNumber }
+      where: { phone_number: req.params.phoneNumber }
     })
 
     if (!user) {
