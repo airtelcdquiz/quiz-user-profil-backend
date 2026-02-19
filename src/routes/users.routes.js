@@ -51,7 +51,7 @@ router.get('/:phoneNumber', async (req, res) => {
         ...user.toJSON(),
         exist: true,
         status: 'already_answered',
-        question_detais: question.toJSON(),
+        question_details: question.toJSON(),
         is_correct: questionOfDay.is_correct
       })
     }
@@ -61,7 +61,7 @@ router.get('/:phoneNumber', async (req, res) => {
         ...user.toJSON(),
         exist: true,
         status: 'already_read',
-        question_detais: question.toJSON()
+        question_details: question.toJSON()
       })
     }
 
@@ -70,7 +70,7 @@ router.get('/:phoneNumber', async (req, res) => {
       ...user.toJSON(),
       exist: true,
       status: 'question_pending',
-      question_detais: question.toJSON(),
+      question_details: question.toJSON(),
       question: {
         ...questionOfDay.toJSON()
       },
