@@ -26,10 +26,11 @@ router.get('/:phoneNumber', async (req, res) => {
     const endOfDay = new Date()
     endOfDay.setHours(23, 59, 59, 999)
 
-    // 🔎 Question du jour
-    const questionOfDay = await Question.findOne({
+    // 🔎 Vérifier si l'utilisateur a répondu
+    const questionOfDay = await QuestionResponse.findOne({
       where: {
-        created_at: {
+        user_id: user.phone_number, 
+        created_date: {
           [Op.between]: [startOfDay, endOfDay]
         }
       }
@@ -43,20 +44,21 @@ router.get('/:phoneNumber', async (req, res) => {
       })
     }
 
-    // 🔎 Vérifier si l'utilisateur a répondu
-    const response = await QuestionResponse.findOne({
-      where: {
-        user_id: user.phone_number,
-        question_id: questionOfDay.id
-      }
-    })
-
-    if (response) {
+    
+    if (questionOfDay.choice) {
       return res.json({
         ...user.toJSON(),
         exist: true,
         status: 'already_answered',
-        is_correct: response.is_correct
+        is_correct: questionOfDay.is_correct
+      })
+    }
+
+    if (questionOfDay.already_read) {
+      return res.json({
+        ...user.toJSON(),
+        exist: true,
+        status: 'g'
       })
     }
 
@@ -66,13 +68,8 @@ router.get('/:phoneNumber', async (req, res) => {
       exist: true,
       status: 'question_pending',
       question: {
-        id: questionOfDay.id,
-        question: questionOfDay.question,
-        option_1: questionOfDay.option_1,
-        option_2: questionOfDay.option_2,
-        option_3: questionOfDay.option_3,
-        option_4: questionOfDay.option_4
-      }
+        ...questionOfDay.toJSON()
+      },
     })
 
   } catch (error) {
