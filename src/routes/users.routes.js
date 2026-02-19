@@ -1,5 +1,7 @@
 const express = require('express')
 const router = express.Router()
+const { Op } = require('sequelize')
+
 const User = require('../models/User')
 const School = require('../models/School')
 const { enqueueSMS } = require('../lib/smsQueue')
