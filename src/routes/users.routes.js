@@ -44,12 +44,14 @@ router.get('/:phoneNumber', async (req, res) => {
       })
     }
 
+    const question =  await Question.findByPk(questionOfDay.question_id)
     
     if (questionOfDay.choice) {
       return res.json({
         ...user.toJSON(),
         exist: true,
         status: 'already_answered',
+        question_detais: question.toJSON(),
         is_correct: questionOfDay.is_correct
       })
     }
@@ -58,7 +60,8 @@ router.get('/:phoneNumber', async (req, res) => {
       return res.json({
         ...user.toJSON(),
         exist: true,
-        status: 'g'
+        status: 'already_read',
+        question_detais: question.toJSON()
       })
     }
 
@@ -67,6 +70,7 @@ router.get('/:phoneNumber', async (req, res) => {
       ...user.toJSON(),
       exist: true,
       status: 'question_pending',
+      question_detais: question.toJSON(),
       question: {
         ...questionOfDay.toJSON()
       },
