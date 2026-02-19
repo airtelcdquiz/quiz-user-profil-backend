@@ -12,7 +12,7 @@ const QuestionResponse = sequelize.define('QuestionResponse', {
     allowNull: false
   },
   user_id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.STRING,
     allowNull: false
   },
   choice: {

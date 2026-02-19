@@ -43,7 +43,7 @@ router.get('/:phoneNumber', async (req, res) => {
     // 🔎 Vérifier si l'utilisateur a répondu
     const response = await QuestionResponse.findOne({
       where: {
-        user_id: user.id,
+        user_id: user.phone_number,
         question_id: questionOfDay.id
       }
     })
