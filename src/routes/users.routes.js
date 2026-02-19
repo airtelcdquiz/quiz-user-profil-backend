@@ -204,7 +204,7 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
       })
     }
 
-    const isCorrect = question.response === choice
+    const isCorrect = question.response == choice
 
     // 💾 Mise à jour
     questionResponse.choice = choice
