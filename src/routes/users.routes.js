@@ -233,6 +233,73 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
   }
 })
 
+
+// GET /users/:phoneNumber/score
+router.get('/:phoneNumber/score', async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { phone_number: req.params.phoneNumber }
+    })
+
+    if (!user) {
+      return res.status(404).json({ exist: false })
+    }
+
+    // 📊 Statistiques globales
+    const totalAnswers = await QuestionResponse.count({
+      where: {
+        user_id: user.phone_number,
+        choice: { [Op.ne]: null }
+      }
+    })
+
+    const correctAnswers = await QuestionResponse.count({
+      where: {
+        user_id: user.phone_number,
+        is_correct: true
+      }
+    })
+
+    const totalScore = correctAnswers * 10
+
+    // 📅 Score du jour
+    const startOfDay = new Date()
+    startOfDay.setHours(0, 0, 0, 0)
+
+    const endOfDay = new Date()
+    endOfDay.setHours(23, 59, 59, 999)
+
+    const todayCorrect = await QuestionResponse.count({
+      where: {
+        user_id: user.phone_number,
+        is_correct: true,
+        created_date: {
+          [Op.between]: [startOfDay, endOfDay]
+        }
+      }
+    })
+
+    enqueueSMS(user.phone_number, `Cher(e)s ${user.name}\n Voici votre score du jour : ${todayCorrect * 10}\nTotal de score : ${totalScore}`);
+
+    return res.json({
+      exist: true,
+      phone_number: user.phone_number,
+      name: user.name,
+      stats: {
+        total_answers: totalAnswers,
+        correct_answers: correctAnswers,
+        wrong_answers: totalAnswers - correctAnswers,
+        total_score: totalScore,
+        today_score: todayCorrect * 10
+      }
+    })
+
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
 // POST /users
 router.post('/', async (req, res) => {
   try {
