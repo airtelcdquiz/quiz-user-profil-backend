@@ -236,10 +236,13 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
 
 // GET /users/:phoneNumber/score
 router.get('/:phoneNumber/score', async (req, res) => {
+  
   try {
     const user = await User.findOne({
       where: { phone_number: req.params.phoneNumber }
     })
+
+    console.log(`${req.params.phoneNumber} veut verifier son score ...`) 
 
     if (!user) {
       return res.status(404).json({ exist: false })
