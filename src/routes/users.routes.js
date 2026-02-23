@@ -205,6 +205,13 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
     }
 
     const isCorrect = question.response == choice
+    if( isCorrect === true ){
+      enqueueSMS(mobileNumber, 'Félicitation! Vous avez fourni la bonne reponse ! Vous avez gagné 10pts !' , {})
+    }else{
+      enqueueSMS(mobileNumber, 'Désolé, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !' , {})
+    }
+
+
 
     // 💾 Mise à jour
     questionResponse.choice = choice
