@@ -4,7 +4,7 @@ const { Op } = require('sequelize')
 const { pushQuestionToUser } = require('../lib/questionDistributionOptimized')
 
 const { User, Question,QuestionResponse, School, sequelize }  = require('../models') 
-const { enqueueSMS } = require('../lib/smsQueue') 
+const { enqueueBulkSMS } = require('../lib/smsQueue') 
 
 // GET /users/:phoneNumber
 router.get('/:phoneNumber', async (req, res) => {
@@ -205,10 +205,14 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
     const isCorrect = question.response == choice
     if( isCorrect === true ){
       console.log('Felicitation! Vous avez fourni la bonne reponse ! Vous avez gagne 10pts !')
-      enqueueSMS(mobileNumber, `Merci cher(e) ${user.name}. DESOLE vous avez fourni une mauvaise repose. COURAGE Verifiez votre score culume en tapant *4405#` , {})
+      enqueueBulkSMS(mobileNumber, [
+        `Merci cher(e) ${user.name}. DESOLE vous avez fourni une mauvaise repose. COURAGE Verifiez votre score culume en tapant *4405#`
+      ] , {})
     }else{
       console.log('Desole, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !')
-      enqueueSMS(mobileNumber, 'Desole, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !' , {})
+      enqueueBulkSMS(mobileNumber, [
+        'Desole, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !'
+      ] , {})
     }
 
 
@@ -284,7 +288,9 @@ router.get('/:phoneNumber/score', async (req, res) => {
     })
 
     console.log(`Cher(e)s ${user.name}\n Voici votre score du jour : ${todayCorrect * 10}\nTotal de score : ${totalScore}`) 
-    enqueueSMS(user.phone_number, `Cher(e)s ${user.name}\n Voici votre score du jour : ${todayCorrect * 10}\nTotal de score : ${totalScore}`);
+    enqueueBulkSMS(user.phone_number,[
+       `Cher(e)s ${user.name}\n Voici votre score du jour : ${todayCorrect * 10}\nTotal de score : ${totalScore}`
+    ]);
 
     return res.json({
       exist: true,
@@ -358,7 +364,9 @@ router.post('/', async (req, res) => {
       ]); 
     }else{
       console.log(`Wait for daily question...`)
-      enqueueSMS(user.phone_number,  `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!`);
+      enqueueBulkSMS(user.phone_number, [
+         `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!`
+      ]);
     }
 
     
@@ -404,7 +412,9 @@ router.put('/:phoneNumber', async (req, res) => {
     if (school_option !== undefined) updates.school_option = school_option
 
     await user.update(updates)
-    enqueueSMS(mobileNumber, 'Votre profil a ete mis à jour avec succès.', {})
+    enqueueBulkSMS(mobileNumber, [
+      'Votre profil a ete mis à jour avec succès.'
+    ], {})
     res.json({
       ...user.toJSON(),
       exist: true

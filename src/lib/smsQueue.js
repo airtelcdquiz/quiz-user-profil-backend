@@ -12,7 +12,7 @@ const smsQueue = new Queue('sms-queue', REDIS_URL);
  * @param {string} message
  * @param {object} meta
  */
-async function enqueueSMS(phoneNumber, message, meta = {}) {
+async function enqueue_SMS(phoneNumber, message, meta = {}) {
   console.log(`On pousse un nouveau message ...`)
   const job = await smsQueue.add({
     phoneNumber,
@@ -46,6 +46,6 @@ async function enqueueBulkSMS(phoneNumber, messages, meta = {}) {
 
 module.exports = {
   smsQueue,
-  enqueueSMS,
+  enqueue_SMS,
   enqueueBulkSMS
 };
