@@ -16,7 +16,25 @@ async function enqueueSMS(phoneNumber, message, meta = {}) {
   const job = await smsQueue.add({
     phoneNumber,
     message,
-    meta,
+    meta: {
+      type:"message",
+      ...meta
+    },
+  }, {
+    attempts: 5,       // retry automatique jusqu'à 5 fois
+    backoff: 5000,     // 5s entre chaque retry
+  });
+  return job.id;
+}
+
+async function enqueueBulkSMS(phoneNumber, message, meta = {}) {
+  const job = await smsQueue.add({
+    phoneNumber,
+    message,
+    meta: {
+      type:"bulk-message",
+      ...meta
+    },
   }, {
     attempts: 5,       // retry automatique jusqu'à 5 fois
     backoff: 5000,     // 5s entre chaque retry
@@ -27,4 +45,5 @@ async function enqueueSMS(phoneNumber, message, meta = {}) {
 module.exports = {
   smsQueue,
   enqueueSMS,
+  enqueueBulkSMS
 };
