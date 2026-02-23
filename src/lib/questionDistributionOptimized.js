@@ -1,0 +1,140 @@
+const { Op, literal } = require('sequelize');
+const User = require('../models/User')
+const School = require('../models/School')
+const { enqueueSMS } = require('../lib/smsQueue')
+const Question = require('../models/Question')
+const QuestionResponse = require('../models/QuestionResponse')
+const DailyQuestionStat = require('../models/DailyQuestionStat')
+
+
+const assignQuestionToUser = async (user) => {
+
+  const today = new Date().toISOString().split('T')[0];
+
+  return await sequelize.transaction(async (t) => {
+
+    // 1️⃣ Vérifier si user a déjà reçu une question aujourd'hui
+    const alreadyReceived = await QuestionResponse.findOne({
+      where: {
+        user_id: user.phone_number,
+        created_date: {
+          [Op.gte]: new Date(today)
+        }
+      },
+      transaction: t,
+      lock: t.LOCK.UPDATE
+    });
+
+    if (alreadyReceived) {
+      return null; // Rien à faire
+    }
+
+    // 2️⃣ Vérifier si user a vu toutes les questions
+    const totalQuestions = await Question.count({ transaction: t });
+
+    const seenCount = await QuestionResponse.count({
+      where: { user_id: user.phone_number },
+      distinct: true,
+      col: 'question_id',
+      transaction: t
+    });
+
+    const hasSeenAll = seenCount >= totalQuestions;
+
+    let exclusionFilter = {};
+
+    if (!hasSeenAll) {
+      const seen = await QuestionResponse.findAll({
+        where: { user_id: user.phone_number },
+        attributes: ['question_id'],
+        raw: true,
+        transaction: t
+      });
+
+      const seenIds = seen.map(q => q.question_id);
+
+      exclusionFilter = {
+        id: {
+          [Op.notIn]: seenIds.length ? seenIds : [0]
+        }
+      };
+    }
+
+    // 3️⃣ Sélection globale journalière optimisée
+    const question = await Question.findOne({
+      where: exclusionFilter,
+      include: [{
+        model: DailyQuestionStat,
+        required: false,
+        where: { date: today }
+      }],
+      order: [
+        [literal('COALESCE(daily_question_stats.send_count, 0)'), 'ASC'],
+        ['id', 'ASC']
+      ],
+      transaction: t,
+      lock: t.LOCK.UPDATE
+    });
+
+    if (!question) return null;
+
+    // 4️⃣ Enregistrer attribution
+    await QuestionResponse.create({
+      question_id: question.id,
+      user_id: user.phone_number,
+      choice: 1, // placeholder
+      is_correct: false,
+      already_read: false,
+      created_date: new Date()
+    }, { transaction: t });
+
+    // 5️⃣ Incrément atomique daily stats
+    await sequelize.query(`
+      INSERT INTO daily_question_stats (question_id, date, send_count)
+      VALUES (:questionId, :today, 1)
+      ON CONFLICT (question_id, date)
+      DO UPDATE SET send_count = daily_question_stats.send_count + 1
+    `, {
+      replacements: { questionId: question.id, today },
+      transaction: t
+    });
+
+    return question;
+  });
+};
+
+const processDailyQuestions = async () => {
+
+  const batchSize = 500;
+  let offset = 0;
+  let users;
+
+  do {
+
+    users = await User.findAll({
+      limit: batchSize,
+      offset
+    });
+
+    for (const user of users) {
+
+      try {
+        const question = await assignQuestionToUser(user);
+
+        if (question) {
+          await enqueueSMS(user.phone_number, question.question);
+        }
+
+      } catch (err) {
+        console.error("Erreur user:", user.phone_number, err);
+      }
+
+    }
+
+    offset += batchSize;
+
+  } while (users.length === batchSize);
+
+};
+
+module.exports = { processDailyQuestions };

@@ -19,14 +19,14 @@ router.get('/:phoneNumber', async (req, res) => {
       return res.json({ exist: false })
     }
 
-    // 📅 Début et fin de la journée
+    // 📅 Debut et fin de la journee
     const startOfDay = new Date()
     startOfDay.setHours(0, 0, 0, 0)
 
     const endOfDay = new Date()
     endOfDay.setHours(23, 59, 59, 999)
 
-    // 🔎 Vérifier si l'utilisateur a répondu
+    // 🔎 Verifier si l'utilisateur a repondu
     const questionOfDay = await QuestionResponse.findOne({
       where: {
         user_id: user.phone_number, 
@@ -65,7 +65,7 @@ router.get('/:phoneNumber', async (req, res) => {
       })
     }
 
-    // 📩 Question non encore répondue
+    // 📩 Question non encore repondue
     return res.json({
       ...user.toJSON(),
       exist: true,
@@ -94,14 +94,14 @@ router.post('/:mobileNumber/lock-daily-question', async (req, res) => {
       return res.status(404).json({ exist: false })
     }
 
-    // 📅 Début et fin de la journée
+    // 📅 Debut et fin de la journee
     const startOfDay = new Date()
     startOfDay.setHours(0, 0, 0, 0)
 
     const endOfDay = new Date()
     endOfDay.setHours(23, 59, 59, 999)
 
-    // 🔎 Récupérer la question du jour assignée
+    // 🔎 Recuperer la question du jour assignee
     const questionOfDay = await QuestionResponse.findOne({
       where: {
         user_id: user.phone_number,  // ⚠️ assure-toi que user_id = phone_number
@@ -118,7 +118,7 @@ router.post('/:mobileNumber/lock-daily-question', async (req, res) => {
       })
     }
 
-    // 🔒 Si déjà lock
+    // 🔒 Si dejà lock
     if (questionOfDay.already_read) {
       return res.json({
         exist: true,
@@ -162,17 +162,17 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
       return res.status(404).json({ exist: false })
     }
 
-    // 📅 Début et fin de la journée
+    // 📅 Debut et fin de la journee
     const startOfDay = new Date()
     startOfDay.setHours(0, 0, 0, 0)
 
     const endOfDay = new Date()
     endOfDay.setHours(23, 59, 59, 999)
 
-    // 🔎 Récupérer la question assignée aujourd’hui
+    // 🔎 Recuperer la question assignee aujourd’hui
     const questionResponse = await QuestionResponse.findOne({
       where: {
-        user_id: user.phone_number, // ⚠️ idéalement user.id
+        user_id: user.phone_number, // ⚠️ idealement user.id
         created_date: {
           [Op.between]: [startOfDay, endOfDay]
         }
@@ -186,7 +186,7 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
       })
     }
 
-    // 🚫 Déjà répondu
+    // 🚫 Dejà repondu
     if (questionResponse.choice) {
       return res.json({
         exist: true,
@@ -195,7 +195,7 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
       })
     }
 
-    // 🔎 Charger la question pour vérifier la bonne réponse
+    // 🔎 Charger la question pour verifier la bonne reponse
     const question = await Question.findByPk(questionResponse.question_id)
 
     if (!question) {
@@ -206,11 +206,11 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
 
     const isCorrect = question.response == choice
     if( isCorrect === true ){
-      console.log('Félicitation! Vous avez fourni la bonne reponse ! Vous avez gagné 10pts !')
-      enqueueSMS(mobileNumber, 'Félicitation! Vous avez fourni la bonne reponse ! Vous avez gagné 10pts !' , {})
+      console.log('Felicitation! Vous avez fourni la bonne reponse ! Vous avez gagne 10pts !')
+      enqueueSMS(mobileNumber, 'Felicitation! Vous avez fourni la bonne reponse ! Vous avez gagne 10pts !' , {})
     }else{
-      console.log('Désolé, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !')
-      enqueueSMS(mobileNumber, 'Désolé, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !' , {})
+      console.log('Desole, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !')
+      enqueueSMS(mobileNumber, 'Desole, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !' , {})
     }
 
 
@@ -307,7 +307,7 @@ router.put('/:phoneNumber', async (req, res) => {
     if (school_option !== undefined) updates.school_option = school_option
 
     await user.update(updates)
-    enqueueSMS(mobileNumber, 'Votre profil a été mis à jour avec succès.', {})
+    enqueueSMS(mobileNumber, 'Votre profil a ete mis à jour avec succès.', {})
     res.json({
       ...user.toJSON(),
       exist: true

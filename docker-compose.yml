@@ -1,6 +1,7 @@
 version: "3.9"
 
 services:
+  # ✅ Serveur Node existant
   quiz-user-service:
     container_name: quiz-user-service
     build: .
@@ -11,6 +12,18 @@ services:
       - dokploy-network
     env_file:
       - .env.example
+    command: ["node", "src/server.js"]  # explicitement pour le serveur
+
+  # ✅ Scheduler séparé
+  scheduler-service:
+    container_name: scheduler-service
+    build: .
+    restart: unless-stopped
+    networks:
+      - dokploy-network
+    env_file:
+      - .env.example
+    command: ["node", "src/scheduler.js"]  # script qui lance startScheduler()
 
 networks:
   dokploy-network:
