@@ -2,11 +2,11 @@ const { Sequelize, DataTypes } = require('sequelize');
 const sequelize = require('./db')
 
 // Import des modèles
-const School = require('./School')(sequelize, DataTypes);
-const User = require('./User')(sequelize, DataTypes);
-const Question = require('./Question')(sequelize, DataTypes);
-const QuestionResponse = require('./QuestionResponse')(sequelize, DataTypes);
-const DailyQuestionStat = require('./DailyQuestionStat')(sequelize, DataTypes);
+const School = require('./School')
+const User = require('./User')
+const Question = require('./Question')
+const QuestionResponse = require('./QuestionResponse')
+const DailyQuestionStat = require('./DailyQuestionStat')
 
 // 🔗 Associations
 Question.hasMany(DailyQuestionStat, { foreignKey: 'question_id' });
