@@ -1,5 +1,5 @@
 const { Op, literal } = require('sequelize'); 
-const { enqueueSMS } = require('../lib/smsQueue')
+const { enqueueSMS, enqueueBulkSMS } = require('../lib/smsQueue')
 const { Question, QuestionResponse, DailyQuestionStat, User, sequelize}  = require('../models') 
 
 
@@ -114,10 +114,14 @@ const processDailyQuestions = async () => {
                 const question = await assignQuestionToUser(user);
 
                 if (question) {
-                    await enqueueSMS(user.phone_number, `Bonjour cher ${user.name}. Soyez pret(e), repondez a votre question du jour et des SURPRISES AIRTEL vous attendent.`);
-                    await enqueueSMS(user.phone_number, `Q. ${question.question}`);
-                    await enqueueSMS(user.phone_number, `Options :\n1.${question.option_1}\n2.${question.option_2}\n3.${question.option_3}\n4.${question.option_4}`);
-                    await enqueueSMS(user.phone_number, ``);
+                    await enqueueBulkSMS(
+                        user.phone_number,
+                        [
+                            `Bonjour cher ${user.name}. Soyez pret(e), repondez a votre question du jour et des SURPRISES AIRTEL vous attendent.`,
+                            `Q. ${question.question}`,
+                            `Options :\n1.${question.option_1}\n2.${question.option_2}\n3.${question.option_3}\n4.${question.option_4}`
+                        ]
+                    )
                 }
 
             } catch (err) {

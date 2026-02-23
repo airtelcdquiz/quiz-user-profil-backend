@@ -27,10 +27,10 @@ async function enqueueSMS(phoneNumber, message, meta = {}) {
   return job.id;
 }
 
-async function enqueueBulkSMS(phoneNumber, message, meta = {}) {
+async function enqueueBulkSMS(phoneNumber, messages, meta = {}) {
   const job = await smsQueue.add({
     phoneNumber,
-    message,
+    messages,
     meta: {
       type:"bulk-message",
       ...meta
