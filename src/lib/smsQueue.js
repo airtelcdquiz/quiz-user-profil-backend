@@ -4,7 +4,7 @@ const Queue = require('bull');
 const REDIS_URL = 'redis://ussd-redis:6379';
 
 // Création de la queue
-const smsQueue = new Queue('sms_queue', REDIS_URL);
+const smsQueue = new Queue('sms-queue', REDIS_URL);
 
 /**
  * Déposer un SMS dans la queue
