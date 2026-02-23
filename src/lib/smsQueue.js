@@ -13,6 +13,7 @@ const smsQueue = new Queue('sms-queue', REDIS_URL);
  * @param {object} meta
  */
 async function enqueueSMS(phoneNumber, message, meta = {}) {
+  console.log(`On pousse un nouveau message ...`)
   const job = await smsQueue.add({
     phoneNumber,
     message,
@@ -24,6 +25,7 @@ async function enqueueSMS(phoneNumber, message, meta = {}) {
     attempts: 5,       // retry automatique jusqu'à 5 fois
     backoff: 5000,     // 5s entre chaque retry
   });
+  console.log(job);
   return job.id;
 }
 
