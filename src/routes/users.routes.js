@@ -153,7 +153,7 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
         error: 'Choice must be between 1 and 4'
       })
     }
-
+    const mobileNumber = req.params.mobileNumber ; 
     const user = await User.findOne({
       where: { phone_number: req.params.mobileNumber }
     })
