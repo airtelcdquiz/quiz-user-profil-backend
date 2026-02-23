@@ -1,6 +1,6 @@
 // src/scheduler.js
 const cron = require('node-cron');
-const { sequelize } = require('./models'); // ton instance sequelize
+const { sequelize } = require('./db'); // ton instance sequelize
 const { processDailyQuestions } = require('./lib/questionDistributionOptimized'); // la fonction qu'on a construite
 const DAILY_HOUR = 7;
 
