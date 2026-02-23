@@ -5,6 +5,7 @@ const { enqueueSMS } = require('../lib/smsQueue')
 const Question = require('../models/Question')
 const QuestionResponse = require('../models/QuestionResponse')
 const DailyQuestionStat = require('../models/DailyQuestionStat')
+const sequelize = require('../db'); // ton instance sequelize
 
 
 const assignQuestionToUser = async (user) => {
