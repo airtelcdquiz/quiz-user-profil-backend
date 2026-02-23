@@ -280,7 +280,9 @@ router.post('/', async (req, res) => {
 
     if (alreadyExecuted.length > 0) {
       console.log("✅ Job déjà exécuté aujourd'hui");
-      pushQuestionToUser(user, `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!`);
+      pushQuestionToUser(user, [
+        `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!`
+      ]);
       return;
     }else{
       enqueueSMS(mobileNumber,  `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!`);
