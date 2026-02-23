@@ -69,7 +69,8 @@ const assignQuestionToUser = async (user) => {
                 ['id', 'ASC']
             ],
             transaction: t,
-            lock: t.LOCK.UPDATE
+            lock: t.LOCK.UPDATE,
+            subQuery: false   // 🔑 Fixe le problème
         });
 
         if (!question) return null;
