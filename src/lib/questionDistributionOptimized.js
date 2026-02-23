@@ -22,7 +22,7 @@ const assignQuestionToUser = async (user) => {
         });
 
         if (alreadyReceived) {
-            return null; // Rien à faire
+           // return null; // Rien à faire
         }
 
         // 2️⃣ Vérifier si user a vu toutes les questions
