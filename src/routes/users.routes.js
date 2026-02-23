@@ -127,7 +127,7 @@ router.post('/:mobileNumber/lock-daily-question', async (req, res) => {
     }
 
     // 🔄 Mise à jour
-    questionOfDay.already_read = true
+    //questionOfDay.already_read = true
     await questionOfDay.save()
 
     return res.json({
