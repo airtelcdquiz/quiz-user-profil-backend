@@ -74,8 +74,6 @@ const assignQuestionToUser = async (user) => {
         await QuestionResponse.create({
             question_id: question.id,
             user_id: user.phone_number,
-            choice: 1, // placeholder
-            is_correct: false,
             already_read: false,
             created_date: new Date()
         }, { transaction: t });
