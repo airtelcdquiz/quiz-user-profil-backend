@@ -65,7 +65,7 @@ const assignQuestionToUser = async (user) => {
                 where: { date: today }
             }],
             order: [
-                [literal('COALESCE(daily_question_stats.send_count, 0)'), 'ASC'],
+                [literal('COALESCE("DailyQuestionStats"."send_count", 0)'), 'ASC'],
                 ['id', 'ASC']
             ],
             transaction: t,
