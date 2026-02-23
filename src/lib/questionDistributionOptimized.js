@@ -97,6 +97,7 @@ const assignQuestionToUser = async (user) => {
 
 const processDailyQuestions = async () => {
 
+    console.log("processDailyQuestions Started")
     const batchSize = 500;
     let offset = 0;
     let users;
@@ -133,6 +134,8 @@ const processDailyQuestions = async () => {
         offset += batchSize;
 
     } while (users.length === batchSize);
+
+    console.log("processDailyQuestions Ended")
 
 };
 
