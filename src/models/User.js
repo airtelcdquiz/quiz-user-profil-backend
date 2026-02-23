@@ -1,8 +1,8 @@
 const { DataTypes } = require('sequelize')
-const sequelize = require('../db')
+const sequelize = require('./db')
 const School = require('./School')
 
-const User = sequelize.define('User', { 
+const User = sequelize.define('User', {
   name: { type: DataTypes.STRING, allowNull: true },
   phone_number: { type: DataTypes.STRING, primaryKey: true, unique: true, allowNull: false },
   school_code: {

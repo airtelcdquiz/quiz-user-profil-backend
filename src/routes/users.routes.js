@@ -2,11 +2,8 @@ const express = require('express')
 const router = express.Router()
 const { Op } = require('sequelize')
 
-const User = require('../models/User')
-const School = require('../models/School')
-const { enqueueSMS } = require('../lib/smsQueue')
-const Question = require('../models/Question')
-const QuestionResponse = require('../models/QuestionResponse')
+const { User, Question,QuestionResponse, School}  = require('../models') 
+const { enqueueSMS } = require('../lib/smsQueue') 
 
 // GET /users/:phoneNumber
 router.get('/:phoneNumber', async (req, res) => {
