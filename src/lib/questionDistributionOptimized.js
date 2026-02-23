@@ -1,5 +1,5 @@
 const { Op, literal } = require('sequelize');
-const { enqueueSMS, enqueueBulkSMS } = require('../lib/smsQueue')
+const { enqueueBulkSMS } = require('../lib/smsQueue')
 const { Question, QuestionResponse, DailyQuestionStat, User, sequelize } = require('../models')
 
 

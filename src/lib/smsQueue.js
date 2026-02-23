@@ -6,28 +6,6 @@ const REDIS_URL = 'redis://ussd-redis:6379';
 // Création de la queue
 const smsQueue = new Queue('sms-queue', REDIS_URL);
 
-/**
- * Déposer un SMS dans la queue
- * @param {string} phoneNumber
- * @param {string} message
- * @param {object} meta
- */
-async function enqueue_SMS(phoneNumber, message, meta = {}) {
-  console.log(`On pousse un nouveau message ...`)
-  const job = await smsQueue.add({
-    phoneNumber,
-    message,
-    meta: {
-      type:"message",
-      ...meta
-    },
-  }, {
-    attempts: 5,       // retry automatique jusqu'à 5 fois
-    backoff: 5000,     // 5s entre chaque retry
-  });
-  console.log(job);
-  return job.id;
-}
 
 async function enqueueBulkSMS(phoneNumber, messages, meta = {}) {
   const job = await smsQueue.add({
@@ -45,7 +23,6 @@ async function enqueueBulkSMS(phoneNumber, messages, meta = {}) {
 }
 
 module.exports = {
-  smsQueue,
-  enqueue_SMS,
+  smsQueue, 
   enqueueBulkSMS
 };

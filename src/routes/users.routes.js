@@ -287,9 +287,9 @@ router.get('/:phoneNumber/score', async (req, res) => {
       }
     })
 
-    console.log(`Cher(e)s ${user.name}\n Voici votre score du jour : ${todayCorrect * 10}\nTotal de score : ${totalScore}`) 
+    console.log(`Cher(e)s ${user.name}\nVoici votre score du jour : ${todayCorrect * 10}\nTotal de score : ${totalScore}`) 
     enqueueBulkSMS(user.phone_number,[
-       `Cher(e)s ${user.name}\n Voici votre score du jour : ${todayCorrect * 10}\nTotal de score : ${totalScore}`
+       `Cher(e)s ${user.name}\nVoici votre score du jour : ${todayCorrect * 10}\nTotal de score : ${totalScore}`
     ]);
 
     return res.json({
