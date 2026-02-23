@@ -1,8 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const { Op } = require('sequelize')
+const { pushQuestionToUser } = require('../lib/questionDistributionOptimized')
 
-const { User, Question,QuestionResponse, School}  = require('../models') 
+const { User, Question,QuestionResponse, School, sequelize }  = require('../models') 
 const { enqueueSMS } = require('../lib/smsQueue') 
 
 // GET /users/:phoneNumber
@@ -261,7 +262,29 @@ router.post('/', async (req, res) => {
         school_option
       }
     })
-    enqueueSMS(mobileNumber, `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!` , {})
+    
+    /**
+     * Envoi du message de bienvenue et envoie de la question de bienvenue.
+     */
+      // Vérifier si job déjà exécuté aujourd'hui
+    const alreadyExecuted = await sequelize.query(`
+      SELECT 1 FROM daily_job_logs
+      WHERE job_name = 'daily_question_job'
+      AND date = :today
+    `, {
+      replacements: { today },
+      type: sequelize.QueryTypes.SELECT
+    });
+
+    if (alreadyExecuted.length > 0) {
+      console.log("✅ Job déjà exécuté aujourd'hui");
+      pushQuestionToUser(user, `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!`);
+      return;
+    }else{
+      enqueueSMS(mobileNumber,  `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!`);
+    }
+
+    
     res.status(created ? 201 : 200).json({
       ...user.toJSON(),
       exist: !created

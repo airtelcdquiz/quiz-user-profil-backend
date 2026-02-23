@@ -1,6 +1,6 @@
-const { Op, literal } = require('sequelize'); 
+const { Op, literal } = require('sequelize');
 const { enqueueSMS, enqueueBulkSMS } = require('../lib/smsQueue')
-const { Question, QuestionResponse, DailyQuestionStat, User, sequelize}  = require('../models') 
+const { Question, QuestionResponse, DailyQuestionStat, User, sequelize } = require('../models')
 
 
 const assignQuestionToUser = async (user) => {
@@ -22,7 +22,7 @@ const assignQuestionToUser = async (user) => {
         });
 
         if (alreadyReceived) {
-           // return null; // Rien à faire
+            // return null; // Rien à faire
         }
 
         // 2️⃣ Vérifier si user a vu toutes les questions
@@ -95,6 +95,28 @@ const assignQuestionToUser = async (user) => {
     });
 };
 
+const pushQuestionToUser = async (user, introMgs = []) => {
+    try {
+        const question = await assignQuestionToUser(user);
+
+        if (question) {
+            await enqueueBulkSMS(
+                user.phone_number,
+                [   
+                    ...introMgs,
+                    `Bonjour cher ${user.name}. Soyez pret(e), repondez a votre question du jour et des SURPRISES AIRTEL vous attendent.`,
+                    `Q. ${question.question}`,
+                    `Options :\n1.${question.option_1}\n2.${question.option_2}\n3.${question.option_3}\n4.${question.option_4}`,
+                    `Pour repondre :\nFaites *4405#\nOption 1 : Repondre a la question du jour.\n\nBonne chance !!`
+                ]
+            )
+        }
+
+    } catch (err) {
+        console.error("Erreur user:", user.phone_number, err);
+    }
+}
+
 const processDailyQuestions = async () => {
 
     console.log("processDailyQuestions Started")
@@ -110,26 +132,7 @@ const processDailyQuestions = async () => {
         });
 
         for (const user of users) {
-
-            try {
-                const question = await assignQuestionToUser(user);
-
-                if (question) {
-                    await enqueueBulkSMS(
-                        user.phone_number,
-                        [
-                            `Bonjour cher ${user.name}. Soyez pret(e), repondez a votre question du jour et des SURPRISES AIRTEL vous attendent.`,
-                            `Q. ${question.question}`,
-                            `Options :\n1.${question.option_1}\n2.${question.option_2}\n3.${question.option_3}\n4.${question.option_4}`,
-                            `Pour repondre :\nFaites *4405#\nOption 1 : Repondre a la question du jour.\n\nBonne chance !!`
-                        ]
-                    )
-                }
-
-            } catch (err) {
-                console.error("Erreur user:", user.phone_number, err);
-            }
-
+            pushQuestionToUser(user)
         }
 
         offset += batchSize;
@@ -140,4 +143,4 @@ const processDailyQuestions = async () => {
 
 };
 
-module.exports = { processDailyQuestions };
+module.exports = { processDailyQuestions, pushQuestionToUser };
