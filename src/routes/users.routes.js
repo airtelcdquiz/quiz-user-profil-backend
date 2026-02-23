@@ -245,6 +245,7 @@ router.get('/:phoneNumber/score', async (req, res) => {
     console.log(`${req.params.phoneNumber} veut verifier son score ...`) 
 
     if (!user) {
+      console.log(`${req.params.phoneNumber} not found `) 
       return res.status(404).json({ exist: false })
     }
 
@@ -282,6 +283,7 @@ router.get('/:phoneNumber/score', async (req, res) => {
       }
     })
 
+    console.log(`Cher(e)s ${user.name}\n Voici votre score du jour : ${todayCorrect * 10}\nTotal de score : ${totalScore}`) 
     enqueueSMS(user.phone_number, `Cher(e)s ${user.name}\n Voici votre score du jour : ${todayCorrect * 10}\nTotal de score : ${totalScore}`);
 
     return res.json({
