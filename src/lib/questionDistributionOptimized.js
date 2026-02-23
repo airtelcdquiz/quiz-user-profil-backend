@@ -57,20 +57,15 @@ const assignQuestionToUser = async (user) => {
         }
 
         // 3️⃣ Sélection globale journalière optimisée
+        // Sélection de la question sans FOR UPDATE sur l'outer join
         const question = await Question.findOne({
             where: exclusionFilter,
-            include: [{
-                model: DailyQuestionStat,
-                required: false,
-                where: { date: today }
-            }],
+            transaction: t,
+            lock: t.LOCK.UPDATE, // lock uniquement sur Question
             order: [
-                [literal('COALESCE("DailyQuestionStats"."send_count", 0)'), 'ASC'],
+                [literal(`COALESCE((SELECT send_count FROM daily_question_stats WHERE question_id = "Question".id AND date = '${today}'), 0)`), 'ASC'],
                 ['id', 'ASC']
             ],
-            transaction: t,
-            lock: t.LOCK.UPDATE,
-            subQuery: false   // 🔑 Fixe le problème
         });
 
         if (!question) return null;
