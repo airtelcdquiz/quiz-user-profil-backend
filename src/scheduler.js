@@ -63,6 +63,6 @@ const runDailyJob = async () => {
   console.log("✅ Job journalier terminé");
 };
 
-//startScheduler();
+startScheduler();
 
-processDailyQuestions()
+//processDailyQuestions()
