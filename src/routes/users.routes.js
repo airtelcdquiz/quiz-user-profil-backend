@@ -204,7 +204,7 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
     const isCorrect = question.response == choice
     if( isCorrect === true ){
       console.log('Felicitation! Vous avez fourni la bonne reponse ! Vous avez gagne 10pts !')
-      enqueueSMS(mobileNumber, 'Felicitation! Vous avez fourni la bonne reponse ! Vous avez gagne 10pts !' , {})
+      enqueueSMS(mobileNumber, `Merci cher(e) ${user.name}. DESOLE vous avez fourni une mauvaise repose. COURAGE Verifiez votre score culume en tapant *4405#` , {})
     }else{
       console.log('Desole, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !')
       enqueueSMS(mobileNumber, 'Desole, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !' , {})
@@ -261,7 +261,7 @@ router.post('/', async (req, res) => {
         school_option
       }
     })
-    enqueueSMS(mobileNumber, 'Bienvenue sur notre plateforme de quiz !' , {})
+    enqueueSMS(mobileNumber, `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!` , {})
     res.status(created ? 201 : 200).json({
       ...user.toJSON(),
       exist: !created
