@@ -278,13 +278,14 @@ router.post('/', async (req, res) => {
       type: sequelize.QueryTypes.SELECT
     });
 
+    console.log(`${user.phone_number} [${user.name}] : Saved !`)
     if (alreadyExecuted.length > 0) {
       console.log("✅ Job déjà exécuté aujourd'hui");
       pushQuestionToUser(user, [
         `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!`
-      ]);
-      return;
+      ]); 
     }else{
+      console.log(`Wait for daily question...`)
       enqueueSMS(user.phone_number,  `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!`);
     }
 
