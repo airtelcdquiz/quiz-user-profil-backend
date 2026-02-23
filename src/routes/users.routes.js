@@ -262,11 +262,13 @@ router.post('/', async (req, res) => {
         school_option
       }
     })
-    
+
     /**
      * Envoi du message de bienvenue et envoie de la question de bienvenue.
      */
-      // Vérifier si job déjà exécuté aujourd'hui
+    const today = new Date().toISOString().split('T')[0];
+
+    // Vérifier si job déjà exécuté aujourd'hui
     const alreadyExecuted = await sequelize.query(`
       SELECT 1 FROM daily_job_logs
       WHERE job_name = 'daily_question_job'
