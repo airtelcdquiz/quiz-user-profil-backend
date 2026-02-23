@@ -63,4 +63,4 @@ const runDailyJob = async () => {
   console.log("✅ Job journalier terminé");
 };
 
-module.exports = { startScheduler };
+startScheduler();
