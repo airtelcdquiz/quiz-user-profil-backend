@@ -285,7 +285,7 @@ router.post('/', async (req, res) => {
       ]);
       return;
     }else{
-      enqueueSMS(mobileNumber,  `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!`);
+      enqueueSMS(user.phone_number,  `Cher(e) ${name}, Felicitations, votre enregistrement a reussi. Airtel Quiz *4405#!`);
     }
 
     
