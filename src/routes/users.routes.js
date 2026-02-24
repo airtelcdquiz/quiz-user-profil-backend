@@ -206,12 +206,12 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
     if( isCorrect === true ){
       console.log('Felicitation! Vous avez fourni la bonne reponse ! Vous avez gagne 10pts !')
       enqueueBulkSMS(mobileNumber, [
-        `Merci cher(e) ${user.name}. DESOLE vous avez fourni une mauvaise repose. COURAGE Verifiez votre score culume en tapant *4405#`
+        `Merci cher(e) ${user.name}. FELICITATION ! Vous avez fourni la bonne reponse. Verifiez votre score cumule en tapant *4405# puis option 1.`
       ] , {})
     }else{
       console.log('Desole, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !')
       enqueueBulkSMS(mobileNumber, [
-        'Desole, la reponse fourni est incorrecte. Vous ferez mieux à la prochaine question !'
+        `Merci cher(e) ${user.name}. DESOLE ! Vous avez fourni une mauvaise reponse. \nVerifiez votre score cumule en tapant *4405# puis option 1.`
       ] , {})
     }
 
