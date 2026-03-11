@@ -26,7 +26,7 @@ const assignQuestionToUser = async (user) => {
         }
 
         // 2️⃣ Vérifier si user a vu toutes les questions
-        const totalQuestions = await Question.count({ transaction: t });
+        const totalQuestions = await Question.count({ transaction: t, where: {is_active: true} });
 
         const seenCount = await QuestionResponse.count({
             where: { phone_number: user.phone_number },
@@ -52,7 +52,8 @@ const assignQuestionToUser = async (user) => {
             exclusionFilter = {
                 id: {
                     [Op.notIn]: seenIds.length ? seenIds : [0]
-                }
+                },
+                is_active: true
             };
         }
 
