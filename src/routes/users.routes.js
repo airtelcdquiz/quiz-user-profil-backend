@@ -27,7 +27,7 @@ router.get('/:phoneNumber', async (req, res) => {
     // 🔎 Verifier si l'utilisateur a repondu
     const questionOfDay = await QuestionResponse.findOne({
       where: {
-        user_id: user.phone_number, 
+        phone_number: user.phone_number, 
         created_date: {
           [Op.between]: [startOfDay, endOfDay]
         }
@@ -102,7 +102,7 @@ router.post('/:mobileNumber/lock-daily-question', async (req, res) => {
     // 🔎 Recuperer la question du jour assignee
     const questionOfDay = await QuestionResponse.findOne({
       where: {
-        user_id: user.phone_number,  // ⚠️ assure-toi que user_id = phone_number
+        phone_number: user.phone_number,  // ⚠️ assure-toi que phone_number = phone_number
         created_date: {
           [Op.between]: [startOfDay, endOfDay]
         }
@@ -170,7 +170,7 @@ router.post('/:mobileNumber/submit-answer', async (req, res) => {
     // 🔎 Recuperer la question assignee aujourd’hui
     const questionResponse = await QuestionResponse.findOne({
       where: {
-        user_id: user.phone_number, // ⚠️ idealement user.id
+        phone_number: user.phone_number, // ⚠️ idealement user.id
         created_date: {
           [Op.between]: [startOfDay, endOfDay]
         }
@@ -256,14 +256,14 @@ router.get('/:phoneNumber/score', async (req, res) => {
     // 📊 Statistiques globales
     const totalAnswers = await QuestionResponse.count({
       where: {
-        user_id: user.phone_number,
+        phone_number: user.phone_number,
         choice: { [Op.ne]: null }
       }
     })
 
     const correctAnswers = await QuestionResponse.count({
       where: {
-        user_id: user.phone_number,
+        phone_number: user.phone_number,
         is_correct: true
       }
     })
@@ -279,7 +279,7 @@ router.get('/:phoneNumber/score', async (req, res) => {
 
     const todayCorrect = await QuestionResponse.count({
       where: {
-        user_id: user.phone_number,
+        phone_number: user.phone_number,
         is_correct: true,
         created_date: {
           [Op.between]: [startOfDay, endOfDay]

@@ -11,7 +11,7 @@ const QuestionResponse = sequelize.define('QuestionResponse', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
-  user_id: {
+  phone_number: {
     type: DataTypes.STRING,
     allowNull: false
   },

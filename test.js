@@ -7,7 +7,7 @@ const RandumFunction = async (user, checkCampaignActive) => {
     // Retreive all special question in database for activ campagne
     // const checkCampaignActive = await FindCampaignStatus("1");
     // const query_1 = `SELECT id FROM campaignsQuestions where campaign_question_type = 'special-question' and campaign_code = '425'`;
-    const query_1 = `SELECT question_id FROM public."specialQuestionTrackers" WHERE user_id = ${user.id}`
+    const query_1 = `SELECT question_id FROM public."specialQuestionTrackers" WHERE phone_number = ${user.id}`
     const query_2 = `SELECT id FROM public."campaignsQuestions" where campaign_question_type = 'special-question' and campaign_code = '425' and id NOT IN (${query_1}) and is_active=true and archived = false`;
     const query_6 = `
       SELECT 
@@ -44,7 +44,7 @@ const RandumFunction = async (user, checkCampaignActive) => {
           cq.id = st.question_id
       WHERE 
         cq.campaign_question_type = 'special-question' and cq.campaign_code = '425' and
-        st.user_id = ${user.id} 
+        st.phone_number = ${user.id} 
          and is_active=true and archived = false
       GROUP BY 
           cq.id
@@ -53,7 +53,7 @@ const RandumFunction = async (user, checkCampaignActive) => {
           last_date ASC;`;
     // const query_3 =  
     // 1. Get count of specialQuestionTrackers for the current user
-    // const specialQuestionTrackers = (await db.sequelize.query(`SELECT question_id FROM specialQuestionTrackers WHERE user_id = ${user.id};`, { type: Sequelize.QueryTypes.SELECT }))
+    // const specialQuestionTrackers = (await db.sequelize.query(`SELECT question_id FROM specialQuestionTrackers WHERE phone_number = ${user.id};`, { type: Sequelize.QueryTypes.SELECT }))
 
     var availableQuestionsToUse = [];
     // 2. Check if user already receive all question existing in datase

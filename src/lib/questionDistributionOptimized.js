@@ -12,7 +12,7 @@ const assignQuestionToUser = async (user) => {
         // 1️⃣ Vérifier si user a déjà reçu une question aujourd'hui
         const alreadyReceived = await QuestionResponse.findOne({
             where: {
-                user_id: user.phone_number,
+                phone_number: user.phone_number,
                 created_date: {
                     [Op.gte]: new Date(today)
                 }
@@ -29,7 +29,7 @@ const assignQuestionToUser = async (user) => {
         const totalQuestions = await Question.count({ transaction: t });
 
         const seenCount = await QuestionResponse.count({
-            where: { user_id: user.phone_number },
+            where: { phone_number: user.phone_number },
             distinct: true,
             col: 'question_id',
             transaction: t
@@ -41,7 +41,7 @@ const assignQuestionToUser = async (user) => {
 
         if (!hasSeenAll) {
             const seen = await QuestionResponse.findAll({
-                where: { user_id: user.phone_number },
+                where: { phone_number: user.phone_number },
                 attributes: ['question_id'],
                 raw: true,
                 transaction: t
@@ -73,7 +73,7 @@ const assignQuestionToUser = async (user) => {
         // 4️⃣ Enregistrer attribution
         await QuestionResponse.create({
             question_id: question.id,
-            user_id: user.phone_number,
+            phone_number: user.phone_number,
             already_read: false,
             created_date: new Date()
         }, { transaction: t });
