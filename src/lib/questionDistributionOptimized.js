@@ -37,7 +37,9 @@ const assignQuestionToUser = async (user) => {
 
         const hasSeenAll = seenCount >= totalQuestions;
 
-        let exclusionFilter = {};
+        let exclusionFilter = {
+            is_active: true
+        };
 
         if (!hasSeenAll) {
             const seen = await QuestionResponse.findAll({
@@ -49,12 +51,9 @@ const assignQuestionToUser = async (user) => {
 
             const seenIds = seen.map(q => q.question_id);
 
-            exclusionFilter = {
-                id: {
+            exclusionFilter.id = {
                     [Op.notIn]: seenIds.length ? seenIds : [0]
-                },
-                is_active: true
-            };
+                };
         }
 
         // 3️⃣ Sélection globale journalière optimisée
