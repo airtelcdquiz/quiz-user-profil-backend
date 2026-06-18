@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS user_history (
+  id SERIAL PRIMARY KEY,
+  phone_number VARCHAR NOT NULL,
+  action VARCHAR(50) NOT NULL,
+  data JSONB,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+);

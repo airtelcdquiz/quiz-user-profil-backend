@@ -3,7 +3,7 @@ const router = express.Router()
 const { Op } = require('sequelize')
 const { pushQuestionToUser } = require('../lib/questionDistributionOptimized')
 
-const { User, Question,QuestionResponse, School, sequelize }  = require('../models') 
+const { User, Question,QuestionResponse, School, UserHistory, sequelize }  = require('../models')
 const { enqueueBulkSMS } = require('../lib/smsQueue') 
 
 // GET /users/:phoneNumber
@@ -83,23 +83,49 @@ router.get('/:phoneNumber', async (req, res) => {
 
 // POST /users/:mobileNumber/unsubscribe
 router.post('/:mobileNumber/unsubscribe', async (req, res) => {
+  const t = await sequelize.transaction()
   try {
     const user = await User.findOne({
-      where: { phone_number: req.params.mobileNumber }
+      where: { phone_number: req.params.mobileNumber },
+      transaction: t
     })
 
     if (!user) {
+      await t.rollback()
       return res.status(404).json({ exist: false })
     }
 
-    await user.update({ is_subscribed: false })
+    const responses = await QuestionResponse.findAll({
+      where: { phone_number: user.phone_number },
+      transaction: t
+    })
+
+    // 🗄️ Archivage avant suppression définitive (audit)
+    await UserHistory.create({
+      phone_number: user.phone_number,
+      action: 'unsubscribe',
+      data: {
+        user: user.toJSON(),
+        responses: responses.map(r => r.toJSON())
+      }
+    }, { transaction: t })
+
+    await QuestionResponse.destroy({
+      where: { phone_number: user.phone_number },
+      transaction: t
+    })
+
+    await user.destroy({ transaction: t })
+
+    await t.commit()
 
     return res.json({
       exist: true,
-      is_subscribed: false
+      deleted: true
     })
 
   } catch (error) {
+    await t.rollback()
     console.error(error)
     res.status(500).json({ error: 'Internal server error' })
   }
