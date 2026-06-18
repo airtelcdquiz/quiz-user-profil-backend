@@ -7,6 +7,7 @@ const User = require('./User')
 const Question = require('./Question')
 const QuestionResponse = require('./QuestionResponse')
 const DailyQuestionStat = require('./DailyQuestionStat')
+const UserHistory = require('./UserHistory')
 
 // 🔗 Associations
 Question.hasMany(DailyQuestionStat, { foreignKey: 'question_id' });
@@ -23,5 +24,6 @@ module.exports = {
     School, 
     Question,
     QuestionResponse,
-    DailyQuestionStat
+    DailyQuestionStat,
+    UserHistory
 };
