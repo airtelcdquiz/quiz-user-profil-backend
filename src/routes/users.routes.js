@@ -115,13 +115,35 @@ router.post('/:mobileNumber/unsubscribe', async (req, res) => {
       transaction: t
     })
 
-    await user.destroy({ transaction: t })
+    // ⚠️ La table `users` est partagée avec airtel_zbm_api (comptes admin) :
+    // `documents.uploaded_by` et `sessions.phone_number` y référencent
+    // users.phone_number sans ON DELETE CASCADE. Si ce numéro est aussi un
+    // compte admin actif, la suppression définitive violerait ces contraintes
+    // de clé étrangère : on se contente alors de couper l'abonnement.
+    const [referencedElsewhere] = await sequelize.query(`
+      SELECT 1 FROM documents WHERE uploaded_by = :phone
+      UNION ALL
+      SELECT 1 FROM sessions WHERE phone_number = :phone
+      LIMIT 1
+    `, {
+      replacements: { phone: user.phone_number },
+      type: sequelize.QueryTypes.SELECT,
+      transaction: t
+    })
+
+    let deleted = true
+    if (referencedElsewhere) {
+      await user.update({ is_subscribed: false }, { transaction: t })
+      deleted = false
+    } else {
+      await user.destroy({ transaction: t })
+    }
 
     await t.commit()
 
     return res.json({
       exist: true,
-      deleted: true
+      deleted
     })
 
   } catch (error) {
