@@ -125,6 +125,7 @@ const processDailyQuestions = async () => {
     do {
 
         users = await User.findAll({
+            where: { is_subscribed: true },
             limit: batchSize,
             offset
         });

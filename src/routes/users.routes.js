@@ -81,6 +81,31 @@ router.get('/:phoneNumber', async (req, res) => {
 })
 
 
+// POST /users/:mobileNumber/unsubscribe
+router.post('/:mobileNumber/unsubscribe', async (req, res) => {
+  try {
+    const user = await User.findOne({
+      where: { phone_number: req.params.mobileNumber }
+    })
+
+    if (!user) {
+      return res.status(404).json({ exist: false })
+    }
+
+    await user.update({ is_subscribed: false })
+
+    return res.json({
+      exist: true,
+      is_subscribed: false
+    })
+
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: 'Internal server error' })
+  }
+})
+
+
 // POST /users/:mobileNumber/lock-daily-question
 router.post('/:mobileNumber/lock-daily-question', async (req, res) => {
   try {
@@ -333,13 +358,18 @@ router.post('/', async (req, res) => {
     const [user, created] = await User.findOrCreate({
       where: { phone_number: mobileNumber },
       defaults: {
-        name, 
+        name,
         school_code,
         school_level,
         school_class,
-        school_option
+        school_option,
+        is_subscribed: true
       }
     })
+
+    if (!created && user.is_subscribed === false) {
+      await user.update({ is_subscribed: true })
+    }
 
     /**
      * Envoi du message de bienvenue et envoie de la question de bienvenue.
