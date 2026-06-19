@@ -102,7 +102,7 @@ const pushQuestionToUser = async (user, introMgs = []) => {
                 user.phone_number,
                 [
                     ...introMgs,
-                    `Soyez-prêt à gagner des prix incroyable en répondant à la question du jour.`
+                    `Soyez-pret a gagner des prix incroyable en repondant a la question du jour.`
                 ]
             )
         }
