@@ -94,15 +94,19 @@ const assignQuestionToUser = async (user) => {
 };
 
 const pushQuestionToUser = async (user, introMgs = []) => {
+
     try {
         const question = await assignQuestionToUser(user);
 
         if (question) {
             await enqueueBulkSMS(
                 user.phone_number,
-                [
+                [   
                     ...introMgs,
-                    `Soyez-pret a gagner des prix incroyable en repondant a la question du jour.`
+                    `Bonjour cher ${user.name}. Soyez pret(e), repondez a votre question du jour et des SURPRISES AIRTEL vous attendent.`,
+                    `Q. ${question.question}`,
+                    `Options :\n1.${question.option_1}\n2.${question.option_2}\n3.${question.option_3}\n4.${question.option_4}`,
+                    `Pour repondre :\nFaites *4405#\nOption 1 : Repondre a la question du jour.\n\nBonne chance !!`
                 ]
             )
         }
