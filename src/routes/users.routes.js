@@ -133,13 +133,23 @@ router.post('/:mobileNumber/unsubscribe', async (req, res) => {
 
     let deleted = true
     if (referencedElsewhere) {
-      await user.update({ is_subscribed: false }, { transaction: t })
+      await user.update({
+        is_subscribed: false,
+        school_code: null,
+        school_level: null,
+        school_class: null,
+        school_option: null
+      }, { transaction: t })
       deleted = false
     } else {
       await user.destroy({ transaction: t })
     }
 
     await t.commit()
+
+    enqueueBulkSMS(user.phone_number, [
+      `Cher(e) ${user.name || 'abonne'}, votre desabonnement au service Airtel Quiz a ete effectue avec succes. Vous pouvez vous reabonner a tout moment en composant *4405#.`
+    ])
 
     return res.json({
       exist: true,

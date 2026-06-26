@@ -7,7 +7,7 @@ const User = sequelize.define('User', {
   phone_number: { type: DataTypes.STRING, primaryKey: true, unique: true, allowNull: false },
   school_code: {
     type: DataTypes.STRING,
-    allowNull: false,
+    allowNull: true,
     references: {
       model: School,
       key: 'code'
@@ -16,19 +16,19 @@ const User = sequelize.define('User', {
 
   school_level: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     defaultValue: 1
   },
 
   school_class: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     defaultValue: 1
   },
 
   school_option: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    allowNull: true,
     defaultValue: 1
   },
 
